@@ -19,7 +19,7 @@ import Transfortation.entity.UserInfoEntity;
 import Transfortation.main.MainFrame;
 
 public class LoginFrame extends JFrame {
-
+	static public String userId; // 로그인 세션
 	JButton b1 = new JButton("로그인");
 	JButton b2 = new JButton("회원가입");
 	JTextField t1 = new JTextField(10);
@@ -87,7 +87,8 @@ public class LoginFrame extends JFrame {
 
 	        for(UserInfoEntity userInfo: userInfoList) {
 	            if(userInfo.getId().equals(t1.getText()) && userInfo.getPw().equals(pw)) {
-	                loginSuccessFlag = true;
+	                userId = userInfo.getId();
+	            	loginSuccessFlag = true;
 	                userName = userInfo.getName(); // 유저 이름 저장
 	                break; // 찾았으므로 더 이상 반복할 필요 없음
 	            }
