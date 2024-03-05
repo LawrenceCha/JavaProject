@@ -19,7 +19,7 @@ import Transfortation.entity.UserInfoEntity;
 import Transfortation.main.MainFrame;
 
 public class LoginFrame extends JFrame {
-	static public String userId; // 로그인 세션
+	public static String userId; // 로그인 세션
 	JButton b1 = new JButton("로그인");
 	JButton b2 = new JButton("회원가입");
 	JTextField t1 = new JTextField(10);

@@ -1,13 +1,18 @@
 package Transfortation.main;
 
 import Transfortation.login.LoginFrame;
+import Transfortation.view.ViewFrame;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Calendar;
 
 public class MainFrame extends JFrame {
@@ -88,19 +93,18 @@ public class MainFrame extends JFrame {
 
         // Panel 3: Buttons
         JPanel panel3 = new JPanel();
-        JButton printButton = new JButton("출력하기");
+        JButton viewButton = new JButton("조회하기");
         JButton saveButton = new JButton("저장하기");
         JButton backButton = new JButton("돌아가기");
-
-        panel3.add(printButton);
+        panel3.add(viewButton);
         panel3.add(saveButton);
         panel3.add(backButton);
 
-        printButton.addActionListener(new ActionListener() {
+        viewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Implement printing functionality
-                JOptionPane.showMessageDialog(MainFrame.this, "출력하기");
+                LoginFrame loginFrame = new LoginFrame();
+                new ViewFrame(loginFrame.userId);
             }
         });
 
@@ -109,8 +113,6 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 // Implement saving functionality
                 inputSaving();
-
-                JOptionPane.showMessageDialog(MainFrame.this, "좋은 하루 되세요");
             }
         });
 
@@ -139,37 +141,69 @@ public class MainFrame extends JFrame {
     }
 
     public void inputSaving() {
-        String fileName = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\March\\transfortationInfo_" + userName + ".txt";
+        String fileName = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\March\\transfortationInfo_" + LoginFrame.userId + ".txt";
 
-        try (FileWriter fileWriter = new FileWriter(fileName)) {
-            fileWriter.write("오늘의 날짜: " + getCurrentDate() + "\n");
-            fileWriter.write("출발지: " + startField.getText() + "\n");
-            fileWriter.write("도착지: " + destinationField.getText() + "\n");
+        File file = new File(fileName);
+        boolean fileExists = file.exists();
 
-            String travelType = r1.isSelected() ? "왕복" : "편도";
-            fileWriter.write("여행 유형: " + travelType + "\n");
+        // 파일이 이미 존재하는 경우
+        if (fileExists) {
+            int option = JOptionPane.showConfirmDialog(this,
+                    "이미 아래의 정보가 등록되어 있습니다:\n" +
+                            getCurrentDate() + "," + startField.getText() + "," + destinationField.getText() + "," +
+                            (r1.isSelected() ? "왕복" : "편도") + "," + costField.getText() + "," + billingPeriodField.getText() + "," +
+                            totalAmountField.getText() + "\n" +
+                            "추가 하시겠습니까?",
+                    "알림",
+                    JOptionPane.YES_NO_CANCEL_OPTION);
 
-            fileWriter.write("왕복비용/편도비용: " + costField.getText() + "\n");
-            fileWriter.write("청구일수: " + billingPeriodField.getText() + "\n");
-
-            // 총액 계산
-            double cost = Double.parseDouble(costField.getText());
-            int billingPeriod = Integer.parseInt(billingPeriodField.getText());
-            double totalAmount = cost * billingPeriod;
-            fileWriter.write("총 액: " + totalAmount + "\n");
-
-            JOptionPane.showMessageDialog(MainFrame.this, "저장이 완료되었습니다.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(MainFrame.this, "저장에 실패했습니다.");
+            if (option == JOptionPane.YES_OPTION) {
+                // 추가
+                appendToFile(fileName);
+            } else if (option == JOptionPane.NO_OPTION) {
+                // 덮어쓰기
+                writeToFile(fileName);
+            }
+            // 취소일 경우는 아무 작업도 하지 않음
+        } else {
+            // 파일이 존재하지 않는 경우 새로운 파일에 쓰기
+            writeToFile(fileName);
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new MainFrame("John"); // Replace "John" with the actual user name
-            }
-        });
+    // 파일에 내용 추가
+    private void appendToFile(String fileName) {
+        try (FileWriter fileWriter = new FileWriter(fileName, true);
+             BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+             PrintWriter out = new PrintWriter(bufferedWriter)) {
+            // totalAmountField의 값을 계산하여 저장
+            int cost = Integer.parseInt(costField.getText());
+            int billingPeriod = Integer.parseInt(billingPeriodField.getText());
+            int totalAmount = cost * billingPeriod;
+            out.println(getCurrentDate() + "," + startField.getText() + "," + destinationField.getText() + "," +
+                    (r1.isSelected() ? "왕복" : "편도") + "," + costField.getText() + "," + billingPeriodField.getText() + "," +
+                    totalAmount);
+            JOptionPane.showMessageDialog(this, "추가되었습니다.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "추가에 실패했습니다.");
+        }
+    }
+
+    // 파일에 내용 덮어쓰기
+    private void writeToFile(String fileName) {
+        try (PrintWriter writer = new PrintWriter(fileName)) {
+            // totalAmountField의 값을 계산하여 저장
+            int cost = Integer.parseInt(costField.getText());
+            int billingPeriod = Integer.parseInt(billingPeriodField.getText());
+            int totalAmount = cost * billingPeriod;
+            writer.println(getCurrentDate() + "," + startField.getText() + "," + destinationField.getText() + "," +
+                    (r1.isSelected() ? "왕복" : "편도") + "," + costField.getText() + "," + billingPeriodField.getText() + "," +
+                    totalAmount);
+            JOptionPane.showMessageDialog(this, "저장이 완료되었습니다.");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "저장에 실패했습니다.");
+        }
     }
 }
