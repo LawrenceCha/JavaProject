@@ -1,78 +1,117 @@
 package Transfortation.view;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
+import Transfortation.data.DataUtil;
+import Transfortation.login.LoginFrame;
 import Transfortation.main.MainFrame;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 
 public class ViewFrame extends JFrame {
+    private String userName;
+    private YearMonth currentYearMonth;
+    private DefaultTableModel model;
+    private JTextField totalTextField;
 
     public ViewFrame(String userName) {
-        setTitle(userName + "님의 교통정산 조회");
-        setSize(400, 300);
+        this.userName = userName;
+        setTitle(userName + "님의 교통비정산 리스트");
+        setSize(600, 400);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
+        setLayout(new BorderLayout());
 
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        JButton a1 = new JButton("<");
+        JButton a2 = new JButton(">");
 
-        String fileName = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\March\\transfortationInfo_" + userName + ".txt";
+        JPanel p1 = new JPanel();
+        // 현재 날짜를 가져오기
+        LocalDate currentDate = LocalDate.now();
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(fileName));
-            String line;
-            boolean fileIsEmpty = true;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                textArea.append("=======================\n");
-                textArea.append("날짜: " + parts[0] + "\n");
-                textArea.append("출발지: " + parts[1] + "\n");
-                textArea.append("도착지: " + parts[2] + "\n");
-                textArea.append("운행정보: " + parts[3] + "\n");
-                textArea.append("운행요금: " + parts[4] + "\n");
-                textArea.append("청구일수: " + parts[5] + "\n");
-                // 총 청구액 계산
-                int cost = Integer.parseInt(parts[4]);
-                int billingPeriod = Integer.parseInt(parts[5]);
-                int totalAmount = cost * billingPeriod;
-                textArea.append("총 청구액: " + totalAmount + "\n");
-                fileIsEmpty = false;
-            }
-            reader.close();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM");
 
-            if (fileIsEmpty) {
-                textArea.setText("해당하는 정보가 없습니다.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            textArea.setText("파일을 찾을 수 없습니다.");
+        String formattedDate = currentDate.format(formatter);
+
+        JLabel l1 = new JLabel(formattedDate);
+        p1.add(a1);
+        p1.add(l1);
+        p1.add(a2);
+        add(p1, BorderLayout.NORTH);
+
+        String[] columnNames = {"DATE", "D_STATION", "A_STATION", "WAY", "FRICE", "TIME", "FARE"};
+        String yearMonth = getCurrentYearMonth(); // 현재 년도와 월을 가져옵니다.
+        String fileName = MainFrame.DEFAULT_DIRECTORY_PATH + yearMonth + "\\transfortationInfo_" + LoginFrame.userId + ".txt"; // 파일 경로를 정의합니다.
+
+        DataUtil dataUtil = new DataUtil();
+        String[][] userInfoArr = dataUtil.loadUserTransInfo(fileName); // 파일 경로를 인자로 전달합니다.
+
+        int sum = 0;
+        for(int i = 0; i < userInfoArr.length; i++) { // 오류 수정: 조건을 userInfoArr.length로 변경
+            sum += Integer.parseInt(userInfoArr[i][6]); // 오류 수정: 요금(fare)의 인덱스는 6입니다.
         }
 
-        JButton closeButton = new JButton("돌아가기");
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.add(closeButton);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        closeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose(); // 창 닫기
-                // MainFrame으로 전환
-                new MainFrame(userName);
-            }
-        });
+        DefaultTableModel model = new DefaultTableModel(userInfoArr, columnNames);
 
-        add(mainPanel);
+        JTable table = new JTable(model);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+
+        add(scrollPane, BorderLayout.CENTER);
+
+        JPanel p2 = new JPanel(new FlowLayout());
+        JButton b2 = new JButton("수정하기");
+        JButton b1 = new JButton("뒤로가기");
+        JLabel l2 = new JLabel("합계");
+        JTextField t2 = new JTextField(sum + "엔"); // 수정: 합계를 sum으로 출력
+        t2.setEditable(false);
+        p2.add(b2);
+        p2.add(b1);
+        p2.add(l2);
+        p2.add(t2);
+
+        add(p2, BorderLayout.SOUTH);
+
         setVisible(true);
     }
+
+
+    private String getCurrentDate() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        return year + "-" + month + "-" + day;
+    }
+
+    private String getCurrentYearMonth() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1; // 월은 0부터 시작하므로 1을 더해줍니다.
+        return year + "-" + month;
+    }
+
+    public static void main(String[] args) {
+        new ViewFrame("John");
+    }
 }
+
+// 틀린 코드
+//String[] columnNames = {"DATE", "D_STATION", "A_STATION", "WAY", "FRICE", "TIME", "FARE"};
+//String yearMonth = getCurrentYearMonth(); // 현재 년도와 월을 가져옵니다.
+//String fileName = MainFrame.DEFAULT_DIRECTORY_PATH + yearMonth + "\\transfortationInfo_" + LoginFrame.userId + ".txt"; // 파일 경로를 정의합니다.
+//
+//DataUtil dataUtil = new DataUtil();
+//String[][] userInfoArr = dataUtil.loadUserTransInfo(fileName); // 파일 경로를 인자로 전달합니다.
+//
+//int sum = 0;
+//for(int i = 0; i < userInfoArr.length - 1; i++) {
+//	sum += Integer.parseInt(userInfoArr[i][6]);
+//}

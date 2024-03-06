@@ -1,9 +1,13 @@
 package Transfortation.main;
 
+import Transfortation.data.DataUtil;
 import Transfortation.login.LoginFrame;
 import Transfortation.view.ViewFrame;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,7 +33,7 @@ public class MainFrame extends JFrame {
     public MainFrame(String userName) {
         this.userName = userName;
 
-        setTitle("교통비정산 시스템 - Main");
+        setTitle(userName + "님의 교통비정산 입력창");
         setSize(400, 300);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,16 +52,22 @@ public class MainFrame extends JFrame {
 
         JPanel inputPanel = new JPanel(new GridLayout(7, 2));
 
-        JLabel dateLabel = new JLabel("오늘의 날짜");
-        JTextField dateField = new JTextField();
-        dateField.setEditable(false);
-        dateField.setText(getCurrentDate());
+        JLabel dateLabel = new JLabel("입력할 날짜");
+        JPanel dateInputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JTextField yearMonthField = new JTextField(getCurrentYearMonth(), 7); // yyyy-MM 형식의 입력 필드
+        yearMonthField.setEditable(false);
+        JComboBox<String> dayComboBox = new JComboBox<>(getDayOptions()); // 날짜 선택 콤보박스
+        dateInputPanel.add(yearMonthField);
+        dateInputPanel.add(dayComboBox);
 
         JLabel startLabel = new JLabel("출발지");
         startField = new JTextField();
 
         JLabel destinationLabel = new JLabel("도착지");
         destinationField = new JTextField();
+
+        JLabel billingLabel = new JLabel("청구금액");
+        JTextField billingField = new JTextField();
 
         JPanel radio = new JPanel((LayoutManager) new FlowLayout(FlowLayout.LEFT));
         r1 = new JRadioButton("왕복");
@@ -69,15 +79,37 @@ public class MainFrame extends JFrame {
         radio.add(r2);
         costField = new JTextField();
 
+        panel2.add(billingLabel);
+        panel2.add(billingField);
+        panel2.add(radio);
+        panel2.add(costField);
+
         JLabel billingPeriodLabel = new JLabel("청구일수");
         billingPeriodField = new JTextField();
+        billingPeriodField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateTotalAmount();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateTotalAmount();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateTotalAmount();
+            }
+        });
 
         JLabel totalAmountLabel = new JLabel("총 액");
         totalAmountField = new JTextField();
         totalAmountField.setEditable(false);
 
+
         inputPanel.add(dateLabel);
-        inputPanel.add(dateField);
+        inputPanel.add(dateInputPanel);
         inputPanel.add(startLabel);
         inputPanel.add(startField);
         inputPanel.add(destinationLabel);
@@ -103,8 +135,7 @@ public class MainFrame extends JFrame {
         viewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                LoginFrame loginFrame = new LoginFrame();
-                new ViewFrame(loginFrame.userId);
+                new ViewFrame(LoginFrame.userId);
             }
         });
 
@@ -131,6 +162,16 @@ public class MainFrame extends JFrame {
 
         setVisible(true);
     }
+    private void updateTotalAmount() {
+        try {
+            int cost = Integer.parseInt(costField.getText());
+            int billingPeriod = Integer.parseInt(billingPeriodField.getText());
+            int totalAmount = cost * billingPeriod;
+            totalAmountField.setText(String.valueOf(totalAmount));
+        } catch (NumberFormatException ex) {
+            totalAmountField.setText("");
+        }
+    }
 
     private String getCurrentDate() {
         Calendar calendar = Calendar.getInstance();
@@ -140,8 +181,32 @@ public class MainFrame extends JFrame {
         return year + "-" + month + "-" + day;
     }
 
-    public void inputSaving() {
-        String fileName = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\March\\transfortationInfo_" + LoginFrame.userId + ".txt";
+    private String getCurrentYearMonth() {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        return year + "-" + month;
+    }
+
+    private String[] getDayOptions() {
+        String[] days = new String[31];
+        for (int i = 1; i <= 31; i++) {
+            days[i - 1] = String.valueOf(i);
+        }
+        return days;
+    }
+    public static final String DEFAULT_DIRECTORY_PATH = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\";
+    public String[][] inputSaving() {
+        String currentDate = getCurrentDate();
+        String yearMonth = getCurrentYearMonth(); // yyyy-MM 형식의 날짜 가져오기
+        String directoryPath = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\" + yearMonth;
+
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            directory.mkdirs(); // 폴더가 없으면 생성
+        }
+
+        String fileName = directoryPath + "\\transfortationInfo_" + LoginFrame.userId + ".txt";
 
         File file = new File(fileName);
         boolean fileExists = file.exists();
@@ -169,7 +234,12 @@ public class MainFrame extends JFrame {
             // 파일이 존재하지 않는 경우 새로운 파일에 쓰기
             writeToFile(fileName);
         }
+
+        // 파일에서 데이터 읽어오기
+        DataUtil dataUtil = new DataUtil();
+        return dataUtil.loadUserTransInfo(fileName);
     }
+
 
     // 파일에 내용 추가
     private void appendToFile(String fileName) {
