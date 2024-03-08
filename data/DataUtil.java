@@ -7,15 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Transfortation.entity.UserInfoEntity;
+import Transfortation.login.LoginFrame;
 
 public class DataUtil {
-	String userInfoPath = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\userInfo.txt";
+	String userInfoPath = "src\\Transfortation\\data\\userInfo.txt";
 
-
-	public String[][] loadUserTransInfo(String fileName){
-		// C:\soon\202402\swing\data\2024-03\apple.txt
-		// C:\soon\202402\swing\data\2024-03
-		String transInfoPath = fileName;
+	public String[][] loadUserTransInfo(String date, String userId){
+		String transInfoPath = "src\\data\\" + date + "\\transfortationInfo_" + LoginFrame.userId + ".txt";
 		String[][] transInfoArr = new String[0][];
 		int count = 0;
 
@@ -45,8 +43,6 @@ public class DataUtil {
 		}
 
 		return transInfoArr;
-
-
 	}
 
 

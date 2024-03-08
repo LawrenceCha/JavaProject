@@ -3,6 +3,7 @@ package Transfortation.main;
 import Transfortation.data.DataUtil;
 import Transfortation.login.LoginFrame;
 import Transfortation.view.ViewFrame;
+import Transfortation.main.MainFrame;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Calendar;
 
+
 public class MainFrame extends JFrame {
 
     private String userName;
@@ -29,9 +31,10 @@ public class MainFrame extends JFrame {
     private JTextField costField;
     private JTextField billingPeriodField;
     private JTextField totalAmountField;
+    private JTextField yearMonthField; // 사용자가 직접 입력할 날짜 필드
 
     public MainFrame(String userName) {
-        this.userName = userName;
+    	this.userName = userName;
 
         setTitle(userName + "님의 교통비정산 입력창");
         setSize(400, 300);
@@ -195,11 +198,10 @@ public class MainFrame extends JFrame {
         }
         return days;
     }
-    public static final String DEFAULT_DIRECTORY_PATH = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\";
+
     public String[][] inputSaving() {
-        String currentDate = getCurrentDate();
-        String yearMonth = getCurrentYearMonth(); // yyyy-MM 형식의 날짜 가져오기
-        String directoryPath = "C:\\Users\\차승석\\Desktop\\Coding\\study11\\swing\\src\\Transfortation\\data\\" + yearMonth;
+        String yearMonth = yearMonthField.getText(); // 직접 입력한 날짜 가져오기
+        String directoryPath = "src\\data\\" + yearMonth; // 기본 경로와 직접 입력한 날짜를 조합하여 경로 생성
 
         File directory = new File(directoryPath);
         if (!directory.exists()) {
@@ -237,7 +239,7 @@ public class MainFrame extends JFrame {
 
         // 파일에서 데이터 읽어오기
         DataUtil dataUtil = new DataUtil();
-        return dataUtil.loadUserTransInfo(fileName);
+        return dataUtil.loadUserTransInfo(yearMonth, LoginFrame.userId); // loadUserTransInfo 메서드 호출에 매개변수 추가
     }
 
 
