@@ -13,7 +13,7 @@ public class DataUtil {
 	String userInfoPath = "src\\Transfortation\\data\\userInfo.txt";
 
 	public String[][] loadUserTransInfo(String date, String userId){
-		String transInfoPath = "src\\data\\" + date + "\\transfortationInfo_" + LoginFrame.userId + ".txt";
+		String transInfoPath = "src\\Transfortation\\data\\" + date + "\\transfortationInfo_" + userId + ".txt";
 		String[][] transInfoArr = new String[0][];
 		int count = 0;
 

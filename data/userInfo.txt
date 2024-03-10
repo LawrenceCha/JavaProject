@@ -2,3 +2,4 @@ alex,123,alexander,0
 ccss1209,1209,차승석,0
 curry,123,카레,0
 kaede,123,카에데,1
+css,123,차승석,0

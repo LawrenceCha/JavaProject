@@ -18,7 +18,10 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class MainFrame extends JFrame {
@@ -31,13 +34,13 @@ public class MainFrame extends JFrame {
     private JTextField costField;
     private JTextField billingPeriodField;
     private JTextField totalAmountField;
-    private JTextField yearMonthField; // 사용자가 직접 입력할 날짜 필드
+    private JTextField yearMonthField;
 
     public MainFrame(String userName) {
     	this.userName = userName;
 
         setTitle(userName + "님의 교통비정산 입력창");
-        setSize(400, 300);
+        setSize(400, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -55,13 +58,11 @@ public class MainFrame extends JFrame {
 
         JPanel inputPanel = new JPanel(new GridLayout(7, 2));
 
+        // 해당 년월에 따라 일수가 바뀌게끔 수정 필요
         JLabel dateLabel = new JLabel("입력할 날짜");
         JPanel dateInputPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JTextField yearMonthField = new JTextField(getCurrentYearMonth(), 7); // yyyy-MM 형식의 입력 필드
-        yearMonthField.setEditable(false);
-        JComboBox<String> dayComboBox = new JComboBox<>(getDayOptions()); // 날짜 선택 콤보박스
+        yearMonthField = new JTextField(10);
         dateInputPanel.add(yearMonthField);
-        dateInputPanel.add(dayComboBox);
 
         JLabel startLabel = new JLabel("출발지");
         startField = new JTextField();
@@ -69,10 +70,11 @@ public class MainFrame extends JFrame {
         JLabel destinationLabel = new JLabel("도착지");
         destinationField = new JTextField();
 
-        JLabel billingLabel = new JLabel("청구금액");
-        JTextField billingField = new JTextField();
+        JPanel billing = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)); // FlowLayout을 사용하고, 여백을 조절하여 정렬
 
-        JPanel radio = new JPanel((LayoutManager) new FlowLayout(FlowLayout.LEFT));
+        JLabel billingLabel = new JLabel("청구금액");
+        JPanel radio = new JPanel(new FlowLayout(FlowLayout.LEFT)); // radio 패널도 FlowLayout으로 설정
+
         r1 = new JRadioButton("왕복");
         r2 = new JRadioButton("편도");
         ButtonGroup buttonGroup = new ButtonGroup();
@@ -80,12 +82,14 @@ public class MainFrame extends JFrame {
         buttonGroup.add(r2);
         radio.add(r1);
         radio.add(r2);
+
         costField = new JTextField();
 
-        panel2.add(billingLabel);
-        panel2.add(billingField);
-        panel2.add(radio);
-        panel2.add(costField);
+        billing.add(billingLabel);
+        billing.add(radio);
+        billing.add(costField);
+
+
 
         JLabel billingPeriodLabel = new JLabel("청구일수");
         billingPeriodField = new JTextField();
@@ -117,7 +121,7 @@ public class MainFrame extends JFrame {
         inputPanel.add(startField);
         inputPanel.add(destinationLabel);
         inputPanel.add(destinationField);
-        inputPanel.add(radio);
+        inputPanel.add(billing);
         inputPanel.add(costField);
         inputPanel.add(billingPeriodLabel);
         inputPanel.add(billingPeriodField);
@@ -176,32 +180,10 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private String getCurrentDate() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        return year + "-" + month + "-" + day;
-    }
-
-    private String getCurrentYearMonth() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        return year + "-" + month;
-    }
-
-    private String[] getDayOptions() {
-        String[] days = new String[31];
-        for (int i = 1; i <= 31; i++) {
-            days[i - 1] = String.valueOf(i);
-        }
-        return days;
-    }
-
     public String[][] inputSaving() {
-        String yearMonth = yearMonthField.getText(); // 직접 입력한 날짜 가져오기
-        String directoryPath = "src\\data\\" + yearMonth; // 기본 경로와 직접 입력한 날짜를 조합하여 경로 생성
+    	String yearMonth = yearMonthField.getText(); // 입력 필드에서 날짜 가져오기
+    	yearMonth = yearMonth.substring(0, 7);
+        String directoryPath = "src\\Transfortation\\data\\" + yearMonth; // 기본 경로와 직접 입력한 날짜를 조합하여 경로 생성
 
         File directory = new File(directoryPath);
         if (!directory.exists()) {
@@ -217,7 +199,7 @@ public class MainFrame extends JFrame {
         if (fileExists) {
             int option = JOptionPane.showConfirmDialog(this,
                     "이미 아래의 정보가 등록되어 있습니다:\n" +
-                            getCurrentDate() + "," + startField.getText() + "," + destinationField.getText() + "," +
+                            yearMonth + "," + startField.getText() + "," + destinationField.getText() + "," +
                             (r1.isSelected() ? "왕복" : "편도") + "," + costField.getText() + "," + billingPeriodField.getText() + "," +
                             totalAmountField.getText() + "\n" +
                             "추가 하시겠습니까?",
@@ -252,7 +234,7 @@ public class MainFrame extends JFrame {
             int cost = Integer.parseInt(costField.getText());
             int billingPeriod = Integer.parseInt(billingPeriodField.getText());
             int totalAmount = cost * billingPeriod;
-            out.println(getCurrentDate() + "," + startField.getText() + "," + destinationField.getText() + "," +
+            out.println(yearMonthField.getText() + "," + startField.getText() + "," + destinationField.getText() + "," +
                     (r1.isSelected() ? "왕복" : "편도") + "," + costField.getText() + "," + billingPeriodField.getText() + "," +
                     totalAmount);
             JOptionPane.showMessageDialog(this, "추가되었습니다.");
@@ -269,7 +251,7 @@ public class MainFrame extends JFrame {
             int cost = Integer.parseInt(costField.getText());
             int billingPeriod = Integer.parseInt(billingPeriodField.getText());
             int totalAmount = cost * billingPeriod;
-            writer.println(getCurrentDate() + "," + startField.getText() + "," + destinationField.getText() + "," +
+            writer.println(yearMonthField.getText() + "," + startField.getText() + "," + destinationField.getText() + "," +
                     (r1.isSelected() ? "왕복" : "편도") + "," + costField.getText() + "," + billingPeriodField.getText() + "," +
                     totalAmount);
             JOptionPane.showMessageDialog(this, "저장이 완료되었습니다.");
