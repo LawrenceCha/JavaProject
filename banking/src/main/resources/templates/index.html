@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank of Seung-Seok</title>
+    <style>
+        /* 전체 body 스타일 */
+        body {
+            background-color: #87cefa;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            text-align: center; /* 승석 은행 제목을 가운데 정렬하기 위해 추가 */
+        }
+
+        /* 로그인 폼 스타일 */
+        form {
+            background-color: #ffffff; /* 흰색 배경 */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: left; /* 로그인 폼을 왼쪽 정렬하기 위해 추가 */
+            display: inline-block; /* 로그인 폼을 중앙 정렬하기 위해 추가 */
+            margin-top: 50px; /* 로그인 폼을 상단으로부터 50px 아래로 이동시키기 위해 추가 */
+            text-align: center; /* 로그인 및 사인업 버튼 가운데 정렬 */
+        }
+
+        /* 알림창 스타일 */
+        .alert {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            position: absolute; /* 로그인 폼 밑에 정중앙으로 위치하기 위해 추가 */
+            left: 50%; /* 로그인 폼 밑에 정중앙으로 위치하기 위해 추가 */
+            transform: translateX(-50%); /* 로그인 폼 밑에 정중앙으로 위치하기 위해 추가 */
+        }
+
+        /* 승석 은행 제목 스타일 */
+        h1 {
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            margin-top: 50px; /* 승석 은행 제목을 상단으로부터 50px 아래로 이동시키기 위해 추가 */
+        }
+        /* 입력 필드 스타일 */
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        /* 로그인 및 사인업 버튼 스타일 */
+        .button {
+            margin-top: 10px;
+            display: block; /* 버튼을 한 줄로 표시 */
+            width: 100%; /* 버튼을 폼의 가로 너비에 맞춤 */
+        }
+        /* 라벨 스타일 */
+        label {
+            display: block; /* 라벨을 블록 요소로 설정하여 왼쪽 정렬 */
+            text-align: left; /* 라벨 텍스트를 왼쪽 정렬 */
+        }
+    </style>
+</head>
+<body>
+<h1>승석 은행</h1>
+<form th:action="@{/login}" method="post">
+    <div>
+        <label for="id">ID:</label>
+        <input type="text" id="id" name="id" />
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" />
+    </div>
+    <button class="button" type="submit">Login</button>
+    <button class="button" type="button" onclick="location.href = '/signUp'">SignUp</button>
+</form>
+<!-- 로그인 실패 알림창 -->
+<div class="alert"  th:text="${msg}">
+</div>
+</body>
+</html>
