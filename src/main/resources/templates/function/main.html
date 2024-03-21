@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank of Seung-Seok - main</title>
+</head>
+<body>
+
+<span th:text="${name}"></span><span>님 환영합니다.</span><button onclick="location.href='user/modify">수정하기</button>
+<h3>신주쿠지점(001)</h3>
+<h3>계좌번호: 4112</h3>
+<h4>잔고: <a href="/acoount/history">123,456,789엔</a></h4>
+<button type="button" onclick="location.href = '/user/transfer'">계좌 이체</button>
+
+</body>
+</html>
