@@ -19,7 +19,7 @@ public class SignUpController {
     @GetMapping("/signUp")
     public String signUp() {
 
-        return "signup";
+        return "user/signup";
 
     }
 
@@ -32,7 +32,7 @@ public class SignUpController {
         // 만약 입력한 아이디기 존재한다면 처리를 중단한다.
         if(exist) {
             model.addAttribute("msg", "존재하는 아이디 입니다.");
-            return "signup";
+            return "user/signup";
         }
         boolean result = signUpService.signUp(entity);
 
@@ -41,7 +41,7 @@ public class SignUpController {
             return "index";
         } else {
             model.addAttribute("msg", "회원가입에 실패 하였습니다.");
-            return "signup";
+            return "user/signup";
         }
     }
 

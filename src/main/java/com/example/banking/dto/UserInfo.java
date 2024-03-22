@@ -1,8 +1,6 @@
 package com.example.banking.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,7 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @Getter
 @Setter
 @ToString
-@Table(name = "userinfo")
+@Table(name = "user")
 @DynamicInsert
 @DynamicUpdate
 public class UserInfo {

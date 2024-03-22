@@ -37,9 +37,7 @@ public class LoginController {
         } else {
             HttpSession session = req.getSession();
             session.setAttribute("id", userInfo.getId());
-
-            model.addAttribute("name", userInfo.getName());
-            return "main";
+            return "redirect:/account/";
         }
     }
 }

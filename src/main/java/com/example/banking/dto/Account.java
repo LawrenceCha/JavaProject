@@ -17,11 +17,15 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicInsert
 @DynamicUpdate
 
-public class AccountInfo {
+public class Account {
     @Id
-    private String id;
-    private int branchcode;
-    private String branchname;
-    private String accountNumber;
-    private long deposit;
+    private String account;
+
+    private int no;
+
+    private String branchCode;
+
+    private long amount;
+
+    private String userId;
 }
